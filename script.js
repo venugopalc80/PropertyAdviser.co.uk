@@ -58,8 +58,8 @@ function openProperty(id){const p=properties.find(x=>x.id===Number(id));if(!p)re
 document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click',closeModal));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeModal();if((e.key==='Enter'||e.key===' ')&&e.target.matches('.property-card')){e.preventDefault();openProperty(e.target.dataset.id)}});
 document.getElementById('aiSearchBtn').addEventListener('click',()=>openModal('ai'));
-document.getElementById('signInBtn').addEventListener('click',()=>openModal('sign'));
-document.getElementById('savedBtn').addEventListener('click',()=>{openModal('sign');if(savedIds.length)modalText.textContent=`You have ${savedIds.length} saved ${savedIds.length===1?'home':'homes'} in this browser. A production account would sync them across devices.`;});
+const savedButton=document.getElementById('savedBtn');
+if(savedButton)savedButton.addEventListener('click',()=>{location.href='account.html';});
 
 document.querySelectorAll('.search-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.search-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.getElementById('searchBtn').textContent=`Search ${tab.dataset.mode.toLowerCase()} →`; }));
 document.querySelectorAll('[data-quick]').forEach(btn=>btn.addEventListener('click',()=>{locationInput.value=btn.dataset.quick;runSearch();}));
@@ -99,6 +99,6 @@ modalAction.addEventListener('click',()=>{
 
 document.getElementById('exploreInsights').addEventListener('click',()=>{openModal('ai');modalEyebrow.textContent='MARKET INSIGHTS';modalTitle.textContent='See the signals behind a property.';modalText.textContent='This demo uses illustrative figures to show how a UK property intelligence layer could explain price, energy, tenure and local context.';aiBrief.value='What should I check before viewing a 3-bedroom home in Bristol?';modalAction.textContent='Show insights →';});
 document.getElementById('mapBtn').addEventListener('click',()=>{openModal('ai');modalEyebrow.textContent='MAP EXPERIENCE';modalTitle.textContent='Explore the neighbourhood.';modalText.textContent='The production version would connect this layer to live geospatial data for transport, amenities, schools and other location signals.';aiBrief.value='Show homes within 20 minutes of central Manchester with a garden.';modalAction.textContent='Explore map →';});
-document.getElementById('agentCta').addEventListener('click',()=>{openModal('sign');modalEyebrow.textContent='AGENT EXPERIENCE';modalTitle.textContent='A richer listing starts with better data.';modalText.textContent='The agent dashboard would let teams publish, verify, manage enquiries, schedule viewings and understand listing performance.';modalAction.textContent='Open agent demo →';});
+document.getElementById('agentCta').addEventListener('click',()=>{location.href='agent.html';});
 document.getElementById('demoPropertyBtn').addEventListener('click',()=>openProperty(1));
 document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click',e=>{const target=document.querySelector(a.getAttribute('href'));if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth'});}}));
