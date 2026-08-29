@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /account.html
+Disallow: /agent.html
+Disallow: /agent-compliance.html
+Disallow: /enquiries.html
+Disallow: /listing.html
+Disallow: /listings.html
+Disallow: /signin.html
+Disallow: /signup.html
+
+# Havenly is currently a demo environment. Review this policy before production launch.
