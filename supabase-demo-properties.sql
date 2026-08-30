@@ -13,11 +13,12 @@ values
   ('10000000-0000-4000-8000-000000000001',1,null,'3 bedroom semi-detached house','Bristol, BS7',475000,3,2,1245,'Semi-detached','Freehold','B','Driveway','Havenly illustrative demo listing.', 'published', true, true, now()),
   ('10000000-0000-4000-8000-000000000002',2,null,'2 bedroom apartment','London, SE1',625000,2,2,885,'Apartment','Leasehold','C','Permit','Havenly illustrative demo listing.', 'published', true, true, now()),
   ('10000000-0000-4000-8000-000000000003',3,null,'4 bedroom detached house','Leeds, LS16',385000,4,2,1890,'Detached','Freehold','C','Garage + drive','Havenly illustrative demo listing.', 'published', true, true, now()),
-  ('10000000-0000-4000-8000-000000000004',4,'10000000-0000-4000-8000-000000000004','3 bedroom townhouse','Manchester, M20',510000,3,2,1430,'Townhouse','Freehold','B','Allocated','Havenly illustrative demo listing.', 'published', true, true, now()),
+  ('10000000-0000-4000-8000-000000000004',4,null,'3 bedroom townhouse','Manchester, M20',510000,3,2,1430,'Townhouse','Freehold','B','Allocated','Havenly illustrative demo listing.', 'published', true, true, now()),
   ('10000000-0000-4000-8000-000000000005',5,null,'4 bedroom period home','Bath, BA1',795000,4,3,2240,'Period house','Freehold','D','On-street','Havenly illustrative demo listing.', 'published', true, true, now()),
   ('10000000-0000-4000-8000-000000000006',6,null,'2 bedroom cottage','York, YO31',295000,2,1,925,'Cottage','Freehold','C','Driveway','Havenly illustrative demo listing.', 'published', true, true, now())
 on conflict (id) do update set
   demo_key=excluded.demo_key,
+  agent_id=null,
   title=excluded.title,
   location=excluded.location,
   price=excluded.price,
