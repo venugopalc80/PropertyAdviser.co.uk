@@ -6,3 +6,50 @@ window.HAVENLY_PROPERTIES = [
 {id:5,dbId:'10000000-0000-4000-8000-000000000005',price:795000,title:'4 bedroom period home',location:'Bath, BA1',beds:4,baths:3,area:'2,240 sq ft',epc:'D',tenure:'Freehold',council:'Band G',parking:'On-street',garden:'Courtyard',score:88,tag:'Period',status:'New',image:'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=90'},
 {id:6,dbId:'10000000-0000-4000-8000-000000000006',price:295000,title:'2 bedroom cottage',location:'York, YO31',beds:2,baths:1,area:'925 sq ft',epc:'C',tenure:'Freehold',council:'Band C',parking:'Driveway',garden:'Rear garden',score:93,tag:'Character',status:'Verified',image:'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=1600&q=90'}
 ];
+
+/* The catalogue pages were originally built as a static demo. Load the Supabase data layer here so
+   existing pages progressively upgrade to authenticated persistence without changing their markup. */
+(function(){
+  const load=(src)=>new Promise((resolve,reject)=>{if(document.querySelector(`script[src="${src}"]`))return resolve();const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
+  async function boot(){
+    try{await load('supabase-client.js');await load('supabase-data.js');}catch(e){return}
+    const ready=window.havenlyDataReady;if(!ready)return;
+    const page=location.pathname.split('/').pop();
+    if(page==='property.html'){
+      await new Promise(r=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',r,{once:true}):r());
+      try{
+        const id=Number(new URLSearchParams(location.search).get('id'))||1,p=window.HAVENLY_PROPERTIES.find(x=>x.id===id),btn=document.getElementById('saveBtn');
+        if(!p||!btn)return;
+        const user=await window.havenlyData.user();
+        if(user&&p.dbId){
+          const {data}=await (await window.havenlyData.client()).from('saved_properties').select('property_id').eq('user_id',user.id).eq('property_id',p.dbId).maybeSingle();
+          btn.textContent=data?'Saved ✓':'Save property ♡';
+          btn.onclick=async()=>{btn.disabled=true;try{if(data||btn.textContent.includes('Saved')){await window.havenlyData.unsaveProperty(p);btn.textContent='Save property ♡'}else{await window.havenlyData.saveProperty(p);btn.textContent='Saved ✓'}}catch(e){alert('Unable to update your saved homes. Please try again.')}finally{btn.disabled=false}};
+        }
+      }catch(e){console.warn('Havenly saved-property sync unavailable',e)}
+    }
+    if(page==='account.html'){
+      await new Promise(r=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',r,{once:true}):r());
+      try{
+        const ids=await window.havenlyData.savedPropertyIds();
+        if(ids){localStorage.setItem('havenlySaved',JSON.stringify(ids));location.reload()}
+      }catch(e){console.warn('Havenly account sync unavailable',e)}
+    }
+    if(page==='enquiry.html'){
+      await new Promise(r=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',r,{once:true}):r());
+      const form=document.getElementById('form');if(!form)return;
+      form.addEventListener('submit',async e=>{
+        const id=Number(new URLSearchParams(location.search).get('id'))||1,p=window.HAVENLY_PROPERTIES.find(x=>x.id===id),u=await window.havenlyData.user();
+        if(!p||!u||!p.dbId)return;
+        e.preventDefault();e.stopImmediatePropagation();
+        const f={name:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),phone:document.getElementById('phone').value.trim(),interest:document.getElementById('interest').value,message:document.getElementById('message').value.trim()};
+        const type=new URLSearchParams(location.search).get('type');
+        try{
+          if(type==='viewing'||f.interest==='Arranging a viewing') await window.havenlyData.submitViewing(p,f); else await window.havenlyData.submitEnquiry(p,f,type);
+          form.hidden=true;const r=document.getElementById('result');r.hidden=false;r.innerHTML='<div class="success"><strong>'+((type==='viewing'||f.interest==='Arranging a viewing')?'Viewing request sent.':'Enquiry sent.')+'</strong><p>Your request has been securely submitted to the Havenly database for this demo.</p><a class="dark-btn" href="account.html">Open your buyer workspace →</a> <a class="outline-btn" href="property.html?id='+p.id+'">Return to property</a></div>';
+        }catch(err){const r=document.getElementById('result');r.hidden=false;r.innerHTML='<div class="error">We could not submit this request. Please try again.</div>';console.error(err)}
+      },true);
+    }
+  }
+  boot();
+})();
