@@ -1,18 +1,14 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Create a Havenly demo property account.">
-  <meta name="theme-color" content="#0b1320">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create a Havenly property account."><meta name="theme-color" content="#0b1320">
   <title>Create account | Havenly</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="components.css">
   <style>
-    .auth-page{min-height:calc(100vh - 84px);display:grid;grid-template-columns:1fr 1fr;background:#f7f8fa}.auth-visual{position:relative;min-height:720px;background:linear-gradient(180deg,rgba(11,19,32,.05),rgba(11,19,32,.72)),url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1800&q=90') center/cover}.auth-visual-content{position:absolute;left:clamp(28px,7vw,100px);right:clamp(28px,7vw,100px);bottom:64px;color:#fff;max-width:560px}.auth-visual-content h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(42px,5vw,72px);line-height:1.02;margin:12px 0 18px;font-weight:600}.auth-visual-content p{font-size:17px;line-height:1.7;color:#e7ebf1;margin:0}.auth-panel{display:flex;align-items:center;justify-content:center;padding:48px 28px}.auth-card{width:min(100%,480px);background:#fff;border:1px solid #e5e7eb;border-radius:24px;padding:42px;box-shadow:0 24px 70px rgba(11,19,32,.08)}.auth-card h2{font-family:'Playfair Display',Georgia,serif;font-size:42px;line-height:1.05;margin:8px 0 12px;color:#0b1320}.auth-lead{color:#64748b;line-height:1.65;margin:0 0 28px}.auth-form{display:grid;gap:18px}.auth-field{display:grid;gap:8px}.auth-field label{font-size:13px;font-weight:700;color:#334155}.auth-field input{width:100%;box-sizing:border-box;border:1px solid #d7dde5;border-radius:12px;padding:14px 15px;font:inherit;color:#0b1320;background:#fff}.auth-field input:focus{outline:3px solid rgba(11,19,32,.1);border-color:#0b1320}.auth-submit{width:100%;border:0;border-radius:12px;background:#0b1320;color:#fff;padding:15px 18px;font:700 15px 'DM Sans',sans-serif;cursor:pointer}.auth-message{display:none;margin-top:16px;padding:12px 14px;border-radius:10px;background:#eef6f0;color:#315a3c;font-size:13px;line-height:1.5}.auth-message.show{display:block}.auth-foot{margin:24px 0 0;text-align:center;font-size:13px;color:#64748b}.auth-link{color:#0b1320;text-decoration:underline;font-weight:700}@media(max-width:900px){.auth-page{grid-template-columns:1fr}.auth-visual{display:none}.auth-panel{min-height:calc(100vh - 84px);padding:32px 18px}.auth-card{padding:32px 24px}.auth-card h2{font-size:36px}}
+    .auth-page{min-height:calc(100vh - 84px);display:grid;grid-template-columns:1fr 1fr;background:#f7f8fa}.auth-visual{position:relative;min-height:720px;background:linear-gradient(180deg,rgba(11,19,32,.05),rgba(11,19,32,.72)),url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1800&q=90') center/cover}.auth-visual-content{position:absolute;left:clamp(28px,7vw,100px);right:clamp(28px,7vw,100px);bottom:64px;color:#fff;max-width:560px}.auth-visual-content h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(42px,5vw,72px);line-height:1.02;margin:12px 0 18px;font-weight:600}.auth-visual-content p{font-size:17px;line-height:1.7;color:#e7ebf1;margin:0}.auth-panel{display:flex;align-items:center;justify-content:center;padding:48px 28px}.auth-card{width:min(100%,480px);background:#fff;border:1px solid #e5e7eb;border-radius:24px;padding:42px;box-shadow:0 24px 70px rgba(11,19,32,.08)}.auth-card h2{font-family:'Playfair Display',Georgia,serif;font-size:42px;line-height:1.05;margin:8px 0 12px;color:#0b1320}.auth-lead{color:#64748b;line-height:1.65;margin:0 0 28px}.auth-form{display:grid;gap:18px}.auth-field{display:grid;gap:8px}.auth-field label{font-size:13px;font-weight:700;color:#334155}.auth-field input{width:100%;box-sizing:border-box;border:1px solid #d7dde5;border-radius:12px;padding:14px 15px;font:inherit;color:#0b1320;background:#fff}.auth-field input:focus{outline:3px solid rgba(11,19,32,.1);border-color:#0b1320}.auth-submit{width:100%;border:0;border-radius:12px;background:#0b1320;color:#fff;padding:15px 18px;font:700 15px 'DM Sans',sans-serif;cursor:pointer}.auth-submit:disabled{opacity:.65;cursor:wait}.auth-message{display:none;margin-top:16px;padding:12px 14px;border-radius:10px;background:#eef6f0;color:#315a3c;font-size:13px;line-height:1.5}.auth-message.show{display:block}.auth-message.error{background:#fff1f2;color:#9f1239}.auth-foot{margin:24px 0 0;text-align:center;font-size:13px;color:#64748b}.auth-link{color:#0b1320;text-decoration:underline;font-weight:700}@media(max-width:900px){.auth-page{grid-template-columns:1fr}.auth-visual{display:none}.auth-panel{min-height:calc(100vh - 84px);padding:32px 18px}.auth-card{padding:32px 24px}.auth-card h2{font-size:36px}}
   </style>
 </head>
 <body>
@@ -20,10 +16,26 @@
   <header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html" aria-label="Havenly home"><span class="brand-mark">H</span><span>havenly<span class="brand-dot">.</span></span></a><div class="nav-actions"><a class="ghost-btn" href="signin.html">Sign in</a></div></div></header>
   <main id="main" class="auth-page">
     <section class="auth-visual" aria-label="Contemporary home"><div class="auth-visual-content"><p class="eyebrow light">YOUR HAVENLY</p><h1>Make the property search feel like yours.</h1><p>Keep your shortlist, compare homes and return to the details that matter.</p></div></section>
-    <section class="auth-panel"><div class="auth-card"><p class="eyebrow">GET STARTED</p><h2>Create your account.</h2><p class="auth-lead">This demo keeps account information in your browser. No real account is created.</p><form class="auth-form" id="signupForm"><div class="auth-field"><label for="name">Full name</label><input id="name" autocomplete="name" required placeholder="Your name"></div><div class="auth-field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="auth-field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="new-password" required placeholder="At least 6 characters"></div><button class="auth-submit" type="submit">Create account <span>→</span></button></form><div class="auth-message" id="message" role="status"></div><p class="auth-foot">Already have an account? <a class="auth-link" href="signin.html">Sign in</a></p></div></section>
+    <section class="auth-panel"><div class="auth-card"><p class="eyebrow">GET STARTED</p><h2>Create your account.</h2><p class="auth-lead">Create a secure Havenly account to save homes, manage your shortlist and request viewings.</p><form class="auth-form" id="signupForm"><div class="auth-field"><label for="name">Full name</label><input id="name" autocomplete="name" required placeholder="Your name"></div><div class="auth-field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="auth-field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="new-password" required placeholder="At least 6 characters"></div><button class="auth-submit" id="submitBtn" type="submit">Create account <span>→</span></button></form><div class="auth-message" id="message" role="status" aria-live="polite"></div><p class="auth-foot">Already have an account? <a class="auth-link" href="signin.html">Sign in</a></p></div></section>
   </main>
+  <script src="supabase-client.js"></script>
   <script>
-    document.getElementById('signupForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('name').value.trim(),email=document.getElementById('email').value.trim();localStorage.setItem('havenlyAuth',JSON.stringify({signedIn:true,name,email,at:new Date().toISOString()}));const message=document.getElementById('message');message.textContent='Demo account created. Taking you to your Havenly account…';message.classList.add('show');setTimeout(()=>location.href='account.html',350);});
+    const form=document.getElementById('signupForm'),message=document.getElementById('message'),submit=document.getElementById('submitBtn');
+    function show(text,error=false){message.textContent=text;message.className='auth-message show'+(error?' error':'')}
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const name=document.getElementById('name').value.trim(),email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+      submit.disabled=true;show('Creating your account…');
+      try{
+        const client=await window.havenlySupabaseReady;
+        if(!client){show('Supabase is not configured on this deployment yet. Please use Sign in for demo mode or configure the Vercel environment variable.',true);return}
+        const {data,error}=await client.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:location.origin+'/account.html'}});
+        if(error)throw error;
+        localStorage.setItem('havenlyAuth',JSON.stringify({signedIn:!!data.session,name,email,at:new Date().toISOString(),source:'supabase'}));
+        if(data.session){show('Account created. Taking you to your Havenly account…');setTimeout(()=>location.href='account.html',500)}
+        else show('Account created. Check your email to confirm your address, then sign in to Havenly.');
+      }catch(err){show(err?.message||'Unable to create your account. Please try again.',true)}finally{submit.disabled=false}
+    });
   </script>
 </body>
 </html>
