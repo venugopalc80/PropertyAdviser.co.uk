@@ -62,6 +62,34 @@ window.havenlyData={
     const {data,error}=await c.from('properties').select('*').in('id',ids).order('created_at',{ascending:false});
     if(error)throw error;return data||[];
   },
+  async saveListingDraft(draft,id=null){
+    const c=await window.havenlyDataReady,u=c?await this.user():null;
+    if(!c||!u)return null;
+    const profile=await this.profile();
+    if(!profile||!['agent','admin'].includes(profile.role))return null;
+    const payload={
+      agent_id:u.id,title:draft.title,location:draft.location,price:Number(draft.price),bedrooms:Number(draft.bedrooms),bathrooms:Number(draft.bathrooms),
+      floor_area_sqft:draft.floor_area_sqft?Number(draft.floor_area_sqft):null,property_type:draft.property_type,tenure:draft.tenure,
+      epc_rating:draft.epc_rating||null,parking:draft.parking||null,description:draft.description||null,status:'draft',
+      facts_confirmed:!!draft.facts_confirmed,material_info_confirmed:!!draft.material_info_confirmed
+    };
+    let result;
+    if(id){
+      result=await c.from('properties').update(payload).eq('id',id).eq('agent_id',u.id).eq('status','draft').select('id').maybeSingle();
+    }else{
+      result=await c.from('properties').insert(payload).select('id').single();
+    }
+    if(result.error)throw result.error;
+    return result.data?.id||null;
+  },
+  async getListingDraft(id){
+    const c=await window.havenlyDataReady,u=c?await this.user():null;
+    if(!c||!u||!id)return null;
+    const profile=await this.profile();
+    if(!profile||!['agent','admin'].includes(profile.role))return null;
+    const {data,error}=await c.from('properties').select('*').eq('id',id).eq('agent_id',u.id).eq('status','draft').maybeSingle();
+    if(error)throw error;return data||null;
+  },
   async agentEnquiries(){
     const c=await window.havenlyDataReady;if(!c)return null;
     const ids=await this.agentPropertyIds();
