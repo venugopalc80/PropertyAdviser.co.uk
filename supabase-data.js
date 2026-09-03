@@ -7,6 +7,7 @@ window.havenlyDataReady=(async()=>{
 window.havenlyData={
   async client(){return window.havenlyDataReady},
   async user(){const c=await window.havenlyDataReady;if(!c)return null;const {data}=await c.auth.getUser();return data?.user||null},
+  async profile(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('profiles').select('id,role,full_name').eq('id',u.id).maybeSingle();if(error)throw error;return data||null},
   async savedPropertyIds(){
     const c=await window.havenlyDataReady;if(!c)return null;
     const u=await this.user();if(!u)return null;
@@ -44,5 +45,28 @@ window.havenlyData={
     if(error)throw error;return true;
   },
   async myEnquiries(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('enquiries').select('*').eq('buyer_id',u.id).order('created_at',{ascending:false});if(error)throw error;return data||[]},
-  async myViewings(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('viewing_requests').select('*').eq('buyer_id',u.id).order('created_at',{ascending:false});if(error)throw error;return data||[]}
+  async myViewings(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('viewing_requests').select('*').eq('buyer_id',u.id).order('created_at',{ascending:false});if(error)throw error;return data||[]},
+  async agentPropertyIds(){
+    const c=await window.havenlyDataReady,u=c?await this.user():null;
+    if(!c||!u)return null;
+    const profile=await this.profile();
+    if(!profile||!['agent','admin'].includes(profile.role))return null;
+    const {data,error}=await c.from('properties').select('id').eq('agent_id',u.id);
+    if(error)throw error;
+    return (data||[]).map(x=>x.id);
+  },
+  async agentEnquiries(){
+    const c=await window.havenlyDataReady;if(!c)return null;
+    const ids=await this.agentPropertyIds();
+    if(!ids?.length)return [];
+    const {data,error}=await c.from('enquiries').select('*').in('property_id',ids).order('created_at',{ascending:false});
+    if(error)throw error;return data||[];
+  },
+  async agentViewings(){
+    const c=await window.havenlyDataReady;if(!c)return null;
+    const ids=await this.agentPropertyIds();
+    if(!ids?.length)return [];
+    const {data,error}=await c.from('viewing_requests').select('*').in('property_id',ids).order('created_at',{ascending:false});
+    if(error)throw error;return data||[];
+  }
 };
