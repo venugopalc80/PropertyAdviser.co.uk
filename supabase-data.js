@@ -103,5 +103,39 @@ window.havenlyData={
     if(!ids?.length)return [];
     const {data,error}=await c.from('viewing_requests').select('*').in('property_id',ids).order('created_at',{ascending:false});
     if(error)throw error;return data||[];
+  },
+  propertyConfidence(rows){
+    const weights={price:10,tenure:10,epc_rating:8,council_tax:8,property_type:6,bedrooms:6,bathrooms:5,floor_area:6,parking:4,garden:3,water:4,sewerage:4,heating:4,broadband:4,mobile:3,flood_risk:6,planning:6,restrictions:5,construction:4,rights_easements:4,issues:5,building_safety:5,coastal_erosion:2,mining:3,lease_terms:6,ground_rent:5,service_charges:5};
+    const fallbackWeight=4;
+    let total=0,earned=0,confirmed=0,stated=0,review=0;
+    (rows||[]).forEach(r=>{
+      const key=String(r.field_key||'').toLowerCase(),w=weights[key]||fallbackWeight,totalStatus=r.status||'not_provided';
+      total+=w;
+      if(totalStatus==='confirmed'){earned+=w;confirmed++}
+      else if(totalStatus==='agent_stated'){earned+=w*.65;stated++}
+      else if(totalStatus==='needs_review'){earned+=w*.15;review++}
+    });
+    const score=total?Math.round(earned/total*100):0;
+    return {score,confirmed,stated,review,totalFields:(rows||[]).length};
   }
 };
+
+/* Progressive enhancement: once the Passport is rendered, replace the old demo score with an evidence-derived score. */
+(function(){
+  const update=()=>{
+    const mount=document.getElementById('passportMount'),card=document.querySelector('.confidence-card');
+    if(!mount||!card)return;
+    const items=[...mount.querySelectorAll('.passport-item')];
+    if(!items.length)return;
+    const statusMap={Confirmed:'confirmed','Agent stated':'agent_stated','Needs review':'needs_review','Not provided':'not_provided'};
+    const rows=items.map(item=>({field_key:(item.querySelector('b')?.textContent||'').toLowerCase().replace(/[^a-z0-9]+/g,'_'),status:statusMap[item.querySelector('.badge')?.textContent?.trim()]||'not_provided'}));
+    const result=window.havenlyData.propertyConfidence(rows);
+    const strong=card.querySelector('strong'),meter=card.querySelector('.meter span'),text=card.querySelector('p');
+    if(strong)strong.textContent=result.score+'/100';
+    if(meter)meter.style.width=result.score+'%';
+    if(text)text.textContent=`Evidence-derived score: ${result.confirmed} confirmed, ${result.stated} agent stated, ${result.review} requiring review. This is not a survey, valuation or legal verification.`;
+  };
+  const observer=new MutationObserver(update);
+  const start=()=>{const mount=document.getElementById('passportMount');if(mount)observer.observe(mount,{childList:true,subtree:true});update()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
