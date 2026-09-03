@@ -8,134 +8,21 @@ window.havenlyData={
   async client(){return window.havenlyDataReady},
   async user(){const c=await window.havenlyDataReady;if(!c)return null;const {data}=await c.auth.getUser();return data?.user||null},
   async profile(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('profiles').select('id,role,full_name').eq('id',u.id).maybeSingle();if(error)throw error;return data||null},
-  async savedPropertyIds(){
-    const c=await window.havenlyDataReady;if(!c)return null;
-    const u=await this.user();if(!u)return null;
-    const {data,error}=await c.from('saved_properties').select('property_id').eq('user_id',u.id);
-    if(error)throw error;
-    const dbIds=(data||[]).map(x=>x.property_id);
-    return (window.HAVENLY_PROPERTIES||[]).filter(p=>dbIds.includes(p.dbId)).map(p=>p.id);
-  },
-  async saveProperty(property){
-    const c=await window.havenlyDataReady;if(!c)return false;
-    const u=await this.user();if(!u||!property?.dbId)return false;
-    const {error}=await c.from('saved_properties').upsert({user_id:u.id,property_id:property.dbId},{onConflict:'user_id,property_id'});
-    if(error)throw error;return true;
-  },
-  async unsaveProperty(property){
-    const c=await window.havenlyDataReady;if(!c)return false;
-    const u=await this.user();if(!u||!property?.dbId)return false;
-    const {error}=await c.from('saved_properties').delete().eq('user_id',u.id).eq('property_id',property.dbId);
-    if(error)throw error;return true;
-  },
-  async submitEnquiry(property,form,type){
-    const c=await window.havenlyDataReady;
-    const u=c?await this.user():null;
-    if(!c||!u||!property?.dbId)return false;
-    const payload={property_id:property.dbId,buyer_id:u.id,name:form.name,email:form.email,phone:form.phone,message:form.message,interest:form.interest,status:'new'};
-    const {error}=await c.from('enquiries').insert(payload);
-    if(error)throw error;return true;
-  },
-  async submitViewing(property,form){
-    const c=await window.havenlyDataReady;
-    const u=c?await this.user():null;
-    if(!c||!u||!property?.dbId)return false;
-    const payload={property_id:property.dbId,buyer_id:u.id,name:form.name,email:form.email,phone:form.phone,message:form.message,status:'requested'};
-    const {error}=await c.from('viewing_requests').insert(payload);
-    if(error)throw error;return true;
-  },
+  async savedPropertyIds(){const c=await window.havenlyDataReady;if(!c)return null;const u=await this.user();if(!u)return null;const {data,error}=await c.from('saved_properties').select('property_id').eq('user_id',u.id);if(error)throw error;const dbIds=(data||[]).map(x=>x.property_id);return (window.HAVENLY_PROPERTIES||[]).filter(p=>dbIds.includes(p.dbId)).map(p=>p.id)},
+  async saveProperty(property){const c=await window.havenlyDataReady;if(!c)return false;const u=await this.user();if(!u||!property?.dbId)return false;const {error}=await c.from('saved_properties').upsert({user_id:u.id,property_id:property.dbId},{onConflict:'user_id,property_id'});if(error)throw error;return true},
+  async unsaveProperty(property){const c=await window.havenlyDataReady;if(!c)return false;const u=await this.user();if(!u||!property?.dbId)return false;const {error}=await c.from('saved_properties').delete().eq('user_id',u.id).eq('property_id',property.dbId);if(error)throw error;return true},
+  async submitEnquiry(property,form,type){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u||!property?.dbId)return false;const payload={property_id:property.dbId,buyer_id:u.id,name:form.name,email:form.email,phone:form.phone,message:form.message,interest:form.interest,status:'new'};const {error}=await c.from('enquiries').insert(payload);if(error)throw error;return true},
+  async submitViewing(property,form){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u||!property?.dbId)return false;const payload={property_id:property.dbId,buyer_id:u.id,name:form.name,email:form.email,phone:form.phone,message:form.message,status:'requested'};const {error}=await c.from('viewing_requests').insert(payload);if(error)throw error;return true},
   async myEnquiries(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('enquiries').select('*').eq('buyer_id',u.id).order('created_at',{ascending:false});if(error)throw error;return data||[]},
   async myViewings(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const {data,error}=await c.from('viewing_requests').select('*').eq('buyer_id',u.id).order('created_at',{ascending:false});if(error)throw error;return data||[]},
-  async agentPropertyIds(){
-    const c=await window.havenlyDataReady,u=c?await this.user():null;
-    if(!c||!u)return null;
-    const profile=await this.profile();
-    if(!profile||!['agent','admin'].includes(profile.role))return null;
-    const {data,error}=await c.from('properties').select('id').eq('agent_id',u.id);
-    if(error)throw error;
-    return (data||[]).map(x=>x.id);
-  },
-  async agentProperties(){
-    const c=await window.havenlyDataReady;
-    const ids=await this.agentPropertyIds();
-    if(!c||!ids?.length)return [];
-    const {data,error}=await c.from('properties').select('*').in('id',ids).order('created_at',{ascending:false});
-    if(error)throw error;return data||[];
-  },
-  async saveListingDraft(draft,id=null){
-    const c=await window.havenlyDataReady,u=c?await this.user():null;
-    if(!c||!u)return null;
-    const profile=await this.profile();
-    if(!profile||!['agent','admin'].includes(profile.role))return null;
-    const payload={
-      agent_id:u.id,title:draft.title,location:draft.location,price:Number(draft.price),bedrooms:Number(draft.bedrooms),bathrooms:Number(draft.bathrooms),
-      floor_area_sqft:draft.floor_area_sqft?Number(draft.floor_area_sqft):null,property_type:draft.property_type,tenure:draft.tenure,
-      epc_rating:draft.epc_rating||null,parking:draft.parking||null,description:draft.description||null,status:'draft',
-      facts_confirmed:!!draft.facts_confirmed,material_info_confirmed:!!draft.material_info_confirmed
-    };
-    let result;
-    if(id){
-      result=await c.from('properties').update(payload).eq('id',id).eq('agent_id',u.id).eq('status','draft').select('id').maybeSingle();
-    }else{
-      result=await c.from('properties').insert(payload).select('id').single();
-    }
-    if(result.error)throw result.error;
-    return result.data?.id||null;
-  },
-  async getListingDraft(id){
-    const c=await window.havenlyDataReady,u=c?await this.user():null;
-    if(!c||!u||!id)return null;
-    const profile=await this.profile();
-    if(!profile||!['agent','admin'].includes(profile.role))return null;
-    const {data,error}=await c.from('properties').select('*').eq('id',id).eq('agent_id',u.id).eq('status','draft').maybeSingle();
-    if(error)throw error;return data||null;
-  },
-  async agentEnquiries(){
-    const c=await window.havenlyDataReady;if(!c)return null;
-    const ids=await this.agentPropertyIds();
-    if(!ids?.length)return [];
-    const {data,error}=await c.from('enquiries').select('*').in('property_id',ids).order('created_at',{ascending:false});
-    if(error)throw error;return data||[];
-  },
-  async agentViewings(){
-    const c=await window.havenlyDataReady;if(!c)return null;
-    const ids=await this.agentPropertyIds();
-    if(!ids?.length)return [];
-    const {data,error}=await c.from('viewing_requests').select('*').in('property_id',ids).order('created_at',{ascending:false});
-    if(error)throw error;return data||[];
-  },
-  propertyConfidence(rows){
-    const weights={price:10,tenure:10,epc_rating:8,council_tax:8,property_type:6,bedrooms:6,bathrooms:5,floor_area:6,parking:4,garden:3,water:4,sewerage:4,heating:4,broadband:4,mobile:3,flood_risk:6,planning:6,restrictions:5,construction:4,rights_easements:4,issues:5,building_safety:5,coastal_erosion:2,mining:3,lease_terms:6,ground_rent:5,service_charges:5};
-    const fallbackWeight=4;
-    let total=0,earned=0,confirmed=0,stated=0,review=0;
-    (rows||[]).forEach(r=>{
-      const key=String(r.field_key||'').toLowerCase(),w=weights[key]||fallbackWeight,totalStatus=r.status||'not_provided';
-      total+=w;
-      if(totalStatus==='confirmed'){earned+=w;confirmed++}
-      else if(totalStatus==='agent_stated'){earned+=w*.65;stated++}
-      else if(totalStatus==='needs_review'){earned+=w*.15;review++}
-    });
-    const score=total?Math.round(earned/total*100):0;
-    return {score,confirmed,stated,review,totalFields:(rows||[]).length};
-  }
+  async agentPropertyIds(){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const profile=await this.profile();if(!profile||!['agent','admin'].includes(profile.role))return null;const {data,error}=await c.from('properties').select('id').eq('agent_id',u.id);if(error)throw error;return (data||[]).map(x=>x.id)},
+  async agentProperties(){const c=await window.havenlyDataReady,ids=await this.agentPropertyIds();if(!c||!ids?.length)return [];const {data,error}=await c.from('properties').select('*').in('id',ids).order('created_at',{ascending:false});if(error)throw error;return data||[]},
+  async saveListingDraft(draft,id=null){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u)return null;const profile=await this.profile();if(!profile||!['agent','admin'].includes(profile.role))return null;const payload={agent_id:u.id,title:draft.title,location:draft.location,price:Number(draft.price),bedrooms:Number(draft.bedrooms),bathrooms:Number(draft.bathrooms),floor_area_sqft:draft.floor_area_sqft?Number(draft.floor_area_sqft):null,property_type:draft.property_type,tenure:draft.tenure,epc_rating:draft.epc_rating||null,parking:draft.parking||null,description:draft.description||null,status:'draft',facts_confirmed:!!draft.facts_confirmed,material_info_confirmed:!!draft.material_info_confirmed};let result;if(id){result=await c.from('properties').update(payload).eq('id',id).eq('agent_id',u.id).eq('status','draft').select('id').maybeSingle()}else{result=await c.from('properties').insert(payload).select('id').single()}if(result.error)throw result.error;return result.data?.id||null},
+  async getListingDraft(id){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u||!id)return null;const profile=await this.profile();if(!profile||!['agent','admin'].includes(profile.role))return null;const {data,error}=await c.from('properties').select('*').eq('id',id).eq('agent_id',u.id).eq('status','draft').maybeSingle();if(error)throw error;return data||null},
+  async publishProperty(propertyId){const c=await window.havenlyDataReady,u=c?await this.user():null;if(!c||!u||!propertyId)return false;const profile=await this.profile();if(!profile||!['agent','admin'].includes(profile.role))return false;const {data,error}=await c.rpc('publish_property',{p_property_id:propertyId});if(error)throw error;return data===true},
+  async agentEnquiries(){const c=await window.havenlyDataReady;if(!c)return null;const ids=await this.agentPropertyIds();if(!ids?.length)return [];const {data,error}=await c.from('enquiries').select('*').in('property_id',ids).order('created_at',{ascending:false});if(error)throw error;return data||[]},
+  async agentViewings(){const c=await window.havenlyDataReady;if(!c)return null;const ids=await this.agentPropertyIds();if(!ids?.length)return [];const {data,error}=await c.from('viewing_requests').select('*').in('property_id',ids).order('created_at',{ascending:false});if(error)throw error;return data||[]},
+  propertyConfidence(rows){const weights={price:10,tenure:10,epc_rating:8,council_tax:8,property_type:6,bedrooms:6,bathrooms:5,floor_area:6,parking:4,garden:3,water:4,sewerage:4,heating:4,broadband:4,mobile:3,flood_risk:6,planning:6,restrictions:5,construction:4,rights_easements:4,issues:5,building_safety:5,coastal_erosion:2,mining:3,lease_terms:6,ground_rent:5,service_charges:5};const fallbackWeight=4;let total=0,earned=0,confirmed=0,stated=0,review=0;(rows||[]).forEach(r=>{const key=String(r.field_key||'').toLowerCase(),w=weights[key]||fallbackWeight,totalStatus=r.status||'not_provided';total+=w;if(totalStatus==='confirmed'){earned+=w;confirmed++}else if(totalStatus==='agent_stated'){earned+=w*.65;stated++}else if(totalStatus==='needs_review'){earned+=w*.15;review++}});const score=total?Math.round(earned/total*100):0;return {score,confirmed,stated,review,totalFields:(rows||[]).length}}
 };
 
-/* Progressive enhancement: once the Passport is rendered, replace the old demo score with an evidence-derived score. */
-(function(){
-  const update=()=>{
-    const mount=document.getElementById('passportMount'),card=document.querySelector('.confidence-card');
-    if(!mount||!card)return;
-    const items=[...mount.querySelectorAll('.passport-item')];
-    if(!items.length)return;
-    const statusMap={Confirmed:'confirmed','Agent stated':'agent_stated','Needs review':'needs_review','Not provided':'not_provided'};
-    const rows=items.map(item=>({field_key:(item.querySelector('b')?.textContent||'').toLowerCase().replace(/[^a-z0-9]+/g,'_'),status:statusMap[item.querySelector('.badge')?.textContent?.trim()]||'not_provided'}));
-    const result=window.havenlyData.propertyConfidence(rows);
-    const strong=card.querySelector('strong'),meter=card.querySelector('.meter span'),text=card.querySelector('p');
-    if(strong)strong.textContent=result.score+'/100';
-    if(meter)meter.style.width=result.score+'%';
-    if(text)text.textContent=`Evidence-derived score: ${result.confirmed} confirmed, ${result.stated} agent stated, ${result.review} requiring review. This is not a survey, valuation or legal verification.`;
-  };
-  const observer=new MutationObserver(update);
-  const start=()=>{const mount=document.getElementById('passportMount');if(mount)observer.observe(mount,{childList:true,subtree:true});update()};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
+(function(){const update=()=>{const mount=document.getElementById('passportMount'),card=document.querySelector('.confidence-card');if(!mount||!card)return;const items=[...mount.querySelectorAll('.passport-item')];if(!items.length)return;const statusMap={Confirmed:'confirmed','Agent stated':'agent_stated','Needs review':'needs_review','Not provided':'not_provided'};const rows=items.map(item=>({field_key:(item.querySelector('b')?.textContent||'').toLowerCase().replace(/[^a-z0-9]+/g,'_'),status:statusMap[item.querySelector('.badge')?.textContent?.trim()]||'not_provided'}));const result=window.havenlyData.propertyConfidence(rows);const strong=card.querySelector('strong'),meter=card.querySelector('.meter span'),text=card.querySelector('p');if(strong)strong.textContent=result.score+'/100';if(meter)meter.style.width=result.score+'%';if(text)text.textContent=`Evidence-derived score: ${result.confirmed} confirmed, ${result.stated} agent stated, ${result.review} requiring review. This is not a survey, valuation or legal verification.`};const observer=new MutationObserver(update);const start=()=>{const mount=document.getElementById('passportMount');if(mount)observer.observe(mount,{childList:true,subtree:true});update()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();
