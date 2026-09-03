@@ -1,8 +1,8 @@
 /* Havenly Supabase bootstrap.
-   The public/publishable key is supplied at runtime by /api/config.js.
+   The publishable key is safe for browser use and is also supplied by /api/config at runtime.
    Never put a Supabase service_role key in this file or in client-side code. */
 window.HAVENLY_SUPABASE_URL='https://tyscbvqiqtfhiscqqrbz.supabase.co';
-window.HAVENLY_SUPABASE_PUBLISHABLE_KEY=window.HAVENLY_SUPABASE_PUBLISHABLE_KEY||'';
+window.HAVENLY_SUPABASE_PUBLISHABLE_KEY=window.HAVENLY_SUPABASE_PUBLISHABLE_KEY||'sb_publishable_Xb0tXC0ox8RrnR1AHD-geQ_TRPW4hOD';
 window.HAVENLY_SUPABASE_CONFIGURED=false;
 
 window.havenlySupabaseReady=(async()=>{
@@ -14,6 +14,16 @@ window.havenlySupabaseReady=(async()=>{
         if(config.supabaseUrl) window.HAVENLY_SUPABASE_URL=config.supabaseUrl;
         if(config.supabasePublishableKey) window.HAVENLY_SUPABASE_PUBLISHABLE_KEY=config.supabasePublishableKey;
       }
+    }else{
+      // Still allow the runtime endpoint to override the public key when configured.
+      try{
+        const response=await fetch('/api/config',{headers:{Accept:'application/json'},cache:'no-store'});
+        if(response.ok){
+          const config=await response.json();
+          if(config.supabaseUrl) window.HAVENLY_SUPABASE_URL=config.supabaseUrl;
+          if(config.supabasePublishableKey) window.HAVENLY_SUPABASE_PUBLISHABLE_KEY=config.supabasePublishableKey;
+        }
+      }catch(_error){}
     }
     if(!window.HAVENLY_SUPABASE_PUBLISHABLE_KEY) return null;
     window.HAVENLY_SUPABASE_CONFIGURED=true;
