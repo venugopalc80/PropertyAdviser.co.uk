@@ -55,6 +55,13 @@ window.havenlyData={
     if(error)throw error;
     return (data||[]).map(x=>x.id);
   },
+  async agentProperties(){
+    const c=await window.havenlyDataReady;
+    const ids=await this.agentPropertyIds();
+    if(!c||!ids?.length)return [];
+    const {data,error}=await c.from('properties').select('*').in('id',ids).order('created_at',{ascending:false});
+    if(error)throw error;return data||[];
+  },
   async agentEnquiries(){
     const c=await window.havenlyDataReady;if(!c)return null;
     const ids=await this.agentPropertyIds();
