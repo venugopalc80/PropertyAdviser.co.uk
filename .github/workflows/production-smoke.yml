@@ -14,7 +14,7 @@ jobs:
         run: |
           set -euo pipefail
           base="https://property-adviser-co-uk.vercel.app"
-          for path in / /properties.html /property-intelligence.html /market-data.html /epc-data.html /signin.html /account.html /legal/privacy.html; do
+          for path in / /properties.html /property-intelligence.html /market-data.html /epc-data.html /signin.html /account.html /privacy.html /cookies.html /terms.html /accessibility.html; do
             code=$(curl -L -sS -o /dev/null -w '%{http_code}' "$base$path")
             echo "$path -> $code"
             test "$code" = "200"
@@ -24,18 +24,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          base="https://property-adviser-co-uk.vercel.app"
           body=$(curl -L -sS --fail "$base/api/price-paid?postcode=PL6%208RU&limit=3")
           echo "$body" | grep -q 'HM Land Registry Price Paid Data'
           echo "$body" | grep -q 'rows'
-        env:
-          base: https://property-adviser-co-uk.vercel.app
 
-      - name: Check EPC configuration response
+      - name: Check EPC endpoint contract
         shell: bash
         run: |
           set -euo pipefail
+          base="https://property-adviser-co-uk.vercel.app"
           code=$(curl -L -sS -o /tmp/epc.json -w '%{http_code}' "$base/api/epc?postcode=PL6%208RU")
           echo "EPC endpoint -> $code"
           test "$code" = "200" || test "$code" = "503"
-        env:
-          base: https://property-adviser-co-uk.vercel.app
