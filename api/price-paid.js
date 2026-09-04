@@ -3,6 +3,9 @@ const ENDPOINT='https://landregistry.data.gov.uk/landregistry/query';
 function json(res,status,body){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=300, stale-while-revalidate=900');res.end(JSON.stringify(body));}
 function cleanPostcode(value){return String(value||'').trim().toUpperCase().replace(/\s+/g,' ')}
 function sparqlLiteral(value){return value.replace(/\\/g,'\\\\').replace(/"/g,'\\"')}
+function lastPart(value){return String(value||'').split('/').filter(Boolean).pop()||null}
+function friendlyType(value){const key=lastPart(value);return ({detached:'Detached',semi_detached:'Semi-detached',terraced:'Terraced',flat_maisonette:'Flat / maisonette',other:'Other'}[key])||key||null}
+function friendlyTenure(value){const key=lastPart(value);return ({freehold:'Freehold',leasehold:'Leasehold'}[key])||key||null}
 
 module.exports=async function handler(req,res){
   if(req.method!=='GET')return json(res,405,{error:'Method not allowed'});
@@ -34,11 +37,10 @@ LIMIT ${limit}`;
     if(!upstream.ok)return json(res,502,{error:'HM Land Registry data service unavailable',status:upstream.status});
     const raw=await upstream.json();
     const rows=(raw?.results?.bindings||[]).map(b=>({
-      transactionId:b.transaction?.value?.split('/').pop()||null,
       paon:b.paon?.value||null,saon:b.saon?.value||null,street:b.street?.value||null,
       town:b.town?.value||null,postcode:b.postcode?.value||postcode,
       price:Number(b.amount?.value||0),date:b.date?.value||null,
-      category:b.category?.value||null,estateType:b.estateType?.value||null,propertyType:b.propertyType?.value||null
+      category:b.category?.value||null,estateType:friendlyTenure(b.estateType?.value),propertyType:friendlyType(b.propertyType?.value)
     }));
     return json(res,200,{source:'HM Land Registry Price Paid Data',sourceUrl:'https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads',postcode,rows,attribution:'Contains HM Land Registry data © Crown copyright and database right 2026. This data is licensed under the Open Government Licence v3.0.'});
   }catch(error){console.error('price-paid proxy error',error);return json(res,502,{error:'Unable to reach HM Land Registry data service'});}
