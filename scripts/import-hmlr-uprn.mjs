@@ -19,16 +19,22 @@ function parseCsvLine(line){
 }
 
 async function main(){
-  const page=await fetch(GOV_PAGE).then(r=>{if(!r.ok)throw new Error(`GOV.UK page returned ${r.status}`);return r.text()});
+  const pageResponse=await fetch(GOV_PAGE);
+  if(!pageResponse.ok)throw new Error(`GOV.UK page returned ${pageResponse.status}`);
+  const page=await pageResponse.text();
   const match=page.match(/https:\/\/price-paid-data\.publicdata\.landregistry\.gov\.uk\/pp-uprn-lookup-[a-z]{3}-\d{4}\.csv/i);
   if(!match)throw new Error('Could not find the current UPRN lookup CSV on the HM Land Registry page.');
   const csvUrl=match[0];
   const filename=csvUrl.split('/').pop();
   const monthMatch=filename.match(/pp-uprn-lookup-([a-z]{3})-(\d{4})\.csv/i);
   const monthNames={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
-  const publishedMonth=`${monthMatch[2]}-${String(monthNames[monthMatch[1].toLowerCase()]).padStart(2,'0')}-01`;
+  const month=monthNames[monthMatch[1].toLowerCase()];
+  if(!month)throw new Error(`Unknown publication month in ${filename}`);
+  const publishedMonth=`${monthMatch[2]}-${String(month).padStart(2,'0')}-01`;
   console.log(`Downloading ${filename}…`);
-  const csv=await fetch(csvUrl).then(r=>{if(!r.ok)throw new Error(`CSV returned ${r.status}`);return r.text()});
+  const csvResponse=await fetch(csvUrl);
+  if(!csvResponse.ok)throw new Error(`CSV returned ${csvResponse.status}`);
+  const csv=await csvResponse.text();
   const lines=csv.split(/\r?\n/).filter(Boolean);
   const rows=[];
   for(const line of lines){
@@ -46,6 +52,7 @@ async function main(){
     if((i/batchSize)%10===0)console.log(`Imported ${Math.min(i+batch.length,rows.length).toLocaleString()} / ${rows.length.toLocaleString()}`);
   }
   console.log(`Done. Source: ${csvUrl}`);
+  console.log('Note: one transaction can relate to multiple UPRNs; the database key is transaction_id + uprn.');
 }
 
 main().catch(error=>{console.error(error.message);process.exit(1)});
